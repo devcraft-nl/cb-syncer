@@ -1,0 +1,7 @@
+quarkus:
+  datasource:
+    db-kind: mysql
+    username: user
+    password: password
+    jdbc:
+      url: jdbc:mysql://localhost/test
