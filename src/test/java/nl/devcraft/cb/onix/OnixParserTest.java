@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
+import nl.devcraft.cb.resourcemanager.WithDBServer;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
+@WithDBServer
 class OnixParserTest {
 
   @Inject
