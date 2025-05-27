@@ -1,4 +1,8 @@
 quarkus:
+  banner:
+    enabled: false
+  log:
+    level: ERROR
   datasource:
     db-kind: mysql
     username: user
