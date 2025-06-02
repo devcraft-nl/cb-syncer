@@ -8,7 +8,6 @@ import java.util.Optional;
 import org.testcontainers.containers.FixedHostPortGenericContainer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy;
-import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 import org.testcontainers.utility.MountableFile;
 
@@ -53,7 +52,7 @@ public class FtpServerResourceManager
     //     .withEnv("USERS", DEFAULT_USER + "|" + DEFAULT_PASSWORD)// + "|/ftp/test|10000")
         .withStartupCheckStrategy(new MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(5)))
         .withCopyFileToContainer(
-            MountableFile.forClasspathResource("/onyx/Onix3sample_refnames.xml"),
+            MountableFile.forClasspathResource("/onix_refnames/Onix3sample_refnames.xml"),
             "/ftp/test/Onix3sample_refnames.xml"
         )
     ;

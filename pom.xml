@@ -38,10 +38,6 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-jaxb</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
       <artifactId>quarkus-arc</artifactId>
     </dependency>
     <dependency>
@@ -61,6 +57,11 @@
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
       <version>3.11.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.tectonica</groupId>
+      <artifactId>jonix</artifactId>
+      <version>2025-04-onix308</version>
     </dependency>
     <dependency>
       <groupId>io.soabase.record-builder</groupId>
@@ -117,29 +118,6 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jaxb2-maven-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
-          <execution>
-            <id>xjc</id>
-            <goals>
-              <goal>xjc</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <xjbSources>
-            <xjbSource>src/main/resources/bindings.xjb</xjbSource>
-          </xjbSources>
-          <sources>
-            <source>src/main/resources/xsd/ONIX_BookProduct_3.0_reference.xsd</source>
-          </sources>
-          <outputDirectory>${basedir}/src/main/java</outputDirectory>
-          <clearOutputDir>false</clearOutputDir>
-        </configuration>
-      </plugin>
-      <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${surefire-plugin.version}</version>
         <configuration>
@@ -168,6 +146,19 @@
           </systemPropertyVariables>
         </configuration>
       </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+              <annotationProcessorPaths>
+                <path>
+                  <groupId>io.soabase.record-builder</groupId>
+                  <artifactId>record-builder-processor</artifactId>
+                  <version>${record-builder.version}</version>
+                </path>
+              </annotationProcessorPaths>
+            </configuration>
+          </plugin>
     </plugins>
   </build>
   <profiles>

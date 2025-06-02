@@ -1,7 +1,11 @@
 package nl.devcraft.cb.onix;
 
-public record ParsedBook(String isbn, String title, String author) {
+import io.soabase.recordbuilder.core.RecordBuilder;
+import java.util.List;
 
-
-
+@RecordBuilder
+public record ParsedBook(String ref, String bookImage, List<String> authors, String isbn, String title,
+                         String shortDescription,
+                         String productAvailability,
+                         Double priceNoTax, Double priceTax) {
 }

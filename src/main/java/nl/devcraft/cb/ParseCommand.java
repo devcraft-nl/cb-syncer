@@ -1,23 +1,18 @@
 package nl.devcraft.cb;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.stream.Stream;
-import nl.devcraft.cb.onix.OnixParser;
-import nl.devcraft.cb.onix.ParsedBook;
-import nl.devcraft.cb.persist.Book;
-import nl.devcraft.cb.persist.BookPersister;
+import nl.devcraft.cb.onix.JonixParser;
+import nl.devcraft.cb.persist.BookService;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "parse", description = "parse the files in the onyx dir")
 class ParseCommand implements Runnable {
 
-  private final OnixParser onyxParser;
-  private final BookPersister persister;
+  private final BookService persister;
+  private final JonixParser jonixParser;
 
-  public ParseCommand(OnixParser onyxParser, BookPersister persister) {
-    this.onyxParser = onyxParser;
+  public ParseCommand(JonixParser jonixParser, BookService persister) {
+    this.jonixParser = jonixParser;
     this.persister = persister;
   }
 
@@ -31,19 +26,10 @@ class ParseCommand implements Runnable {
   @Override
   public void run() {
     System.out.println(dir);
-    try (Stream<Path> paths = Files.walk(Paths.get(dir))) {
-      paths
-          .filter(Files::isRegularFile)
-          .forEach(file -> {
-            onyxParser.unmarshal(file.toFile())
-                .forEach(book -> {
-                  persister.persist(book);
-                  System.out.println("Stored book with title: " + book.title());
-                });
-          });
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    jonixParser.read(Paths.get(dir).toFile())
+        .forEach(book -> {
+          persister.save(book);
+          System.out.println("Stored book with title: " + book.title());
+        });
   }
-
 }
