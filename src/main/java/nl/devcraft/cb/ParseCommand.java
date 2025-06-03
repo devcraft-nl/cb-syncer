@@ -5,7 +5,7 @@ import nl.devcraft.cb.onix.JonixParser;
 import nl.devcraft.cb.persist.BookService;
 import picocli.CommandLine;
 
-@CommandLine.Command(name = "parse", description = "parse the files in the onyx dir")
+@CommandLine.Command(name = "parse", description = "parse the files in the onix dir")
 class ParseCommand implements Runnable {
 
   private final BookService persister;
@@ -18,7 +18,7 @@ class ParseCommand implements Runnable {
 
   private String dir;
 
-  @CommandLine.Option(names = "-d", defaultValue = "onyx/", description = "Directory to parse")
+  @CommandLine.Option(names = "-d", defaultValue = "onix/", description = "Directory to parse")
   public void setDir(String dir) {
     this.dir = dir;
   }

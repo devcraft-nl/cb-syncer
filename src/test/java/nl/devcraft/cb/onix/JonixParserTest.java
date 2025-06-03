@@ -76,7 +76,7 @@ class JonixParserTest {
             ParsedBook::ref
         )
         .containsOnly(new Tuple(
-            9780007232834L,
+            9780007232833L,
             null,
             List.of(),
             null,

@@ -5,7 +5,7 @@ import nl.devcraft.cb.onix.JonixParser;
 import nl.devcraft.cb.persist.BookService;
 import picocli.CommandLine;
 
-@CommandLine.Command(name = "update", description = "parse the blockfiles in the onyx dir")
+@CommandLine.Command(name = "update", description = "parse the blockfiles in the onix dir")
 class UpdateCommand implements Runnable {
 
   private final BookService persister;
@@ -18,7 +18,7 @@ class UpdateCommand implements Runnable {
 
   private String dir;
 
-  @CommandLine.Option(names = "-d", defaultValue = "onyx/", description = "Directory to parse")
+  @CommandLine.Option(names = "-d", defaultValue = "onix/", description = "Directory to parse")
   public void setDir(String dir) {
     this.dir = dir;
   }
@@ -29,7 +29,7 @@ class UpdateCommand implements Runnable {
     jonixParser.read(Paths.get(dir).toFile())
         .forEach(book -> {
           persister.update(book);
-          System.out.println("Updated book with title: " + book.title());
+          System.out.println("Updated book with isbn: " + book.isbn());
         });
   }
 }

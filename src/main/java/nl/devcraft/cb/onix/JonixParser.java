@@ -15,6 +15,7 @@ import com.tectonica.jonix.util.JonixUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @ApplicationScoped
@@ -49,13 +50,15 @@ public class JonixParser {
 
           var product3 = Jonix.toProduct3(record);
 
+          // var bookImage = product3.collateralDetail().supportingResources();
+
           var bookImage = product3.collateralDetail().supportingResources()
-              .filter(sr -> sr.resourceContentType().value == ResourceContentTypes.Front_cover)
-              .firstOrEmpty()
-              .resourceVersions()
-              .filter(rv -> rv.resourceForm().value == ResourceForms.Downloadable_file)
               .first()
-              .map(rv -> rv.resourceLinks().firstValueOrNull())
+              .filter(sr -> sr.resourceContentType().value == ResourceContentTypes.Front_cover)
+              .map(sr -> sr.resourceVersions().first())
+              .filter(Optional::isPresent)
+              .filter(rv -> rv.get().resourceForm().value == ResourceForms.Downloadable_file)
+              .map(rv -> rv.get().resourceLinks().firstValueOrNull())
               .orElse(null);
 
           var productAvailability =

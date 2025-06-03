@@ -8,7 +8,6 @@ import nl.devcraft.cb.onix.ParsedBookBuilder;
 import nl.devcraft.cb.resourcemanager.MySQLClient;
 import nl.devcraft.cb.resourcemanager.WithDBClient;
 import nl.devcraft.cb.resourcemanager.WithDBServer;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,11 +22,6 @@ class BookServiceTest {
   @WithDBClient
   MySQLClient mysqlClient;
 
-  @AfterEach
-  void tearDown() throws SQLException {
-    mysqlClient.execute("truncate table cb_author; truncate table cb_books;");
-  }
-
   @Test
   void it_should_save_a_book_in_the_database() throws SQLException {
     var parsedBook = ParsedBookBuilder.builder()
@@ -40,7 +34,7 @@ class BookServiceTest {
     bookService.save(parsedBook);
     try (var conn = mysqlClient.connection()) {
 
-      var result = conn.createStatement().executeQuery("select * from cb_books");
+      var result = conn.createStatement().executeQuery("select * from cb_books where isbn = 123456");
       result.next();
       assertThat(result.getString("title")).isEqualTo("title");
       assertThat(result.getString("shortDescription")).isEqualTo("shortDescription");
@@ -52,7 +46,7 @@ class BookServiceTest {
   @Test
   void it_should_update_a_book_in_the_database() throws SQLException {
     var parsedBook = ParsedBookBuilder.builder()
-        .isbn(123456L)
+        .isbn(723456L)
         .title("title")
         .shortDescription("shortDescription")
         .description("description")
@@ -67,7 +61,7 @@ class BookServiceTest {
     bookService.update(updatedBook);
     try (var conn = mysqlClient.connection()) {
 
-      var result = conn.createStatement().executeQuery("select * from cb_books");
+      var result = conn.createStatement().executeQuery("select * from cb_books where isbn = 723456");
       result.next();
       assertThat(result.getString("title")).isEqualTo("updatedTitle");
       assertThat(result.next()).isFalse();

@@ -17,12 +17,13 @@ public class BookService {
 
   @Transactional
   public void update(ParsedBook book) {
-    var books = Book.findAll();
     var bookEntity = Book.findByIsbn(book.isbn());
+    Book updatedBookEntity;
     if( bookEntity == null ) {
-      throw new RuntimeException("Book with isbn " + book.isbn() + " not found");
+      updatedBookEntity = mapToBookEntity(book);
+    } else {
+      updatedBookEntity = updateBookEntity(bookEntity, book);
     }
-    var updatedBookEntity = updateBookEntity(bookEntity, book);
     updatedBookEntity.persist();
     updatedBookEntity.authors.forEach(a -> a.persist());
     //save isbn number to update table

@@ -19,13 +19,9 @@ public class UpdateCommandTest {
 
   @Test
   public void it_should_parse_an_onix_update_file_and_persist_the_data(QuarkusMainLauncher launcher) {
-    LaunchResult parseResult = launcher.launch("parse", "-d=src/test/resources/onix_refnames/");
-    assertThat(parseResult.exitCode()).isEqualTo(0);
-    assertThat(parseResult.getOutput()).contains("Stored book with title: Roseanna");
-
     LaunchResult result = launcher.launch("update", "-d=src/test/resources/onix_refnames_blockupdate/");
     assertThat(result.exitCode()).isEqualTo(0);
-    assertThat(result.getOutput()).contains("Updated book with title: Roseanna");
+    assertThat(result.getOutput()).contains("Updated book with isbn: 9780007232833");
   }
 
 }
