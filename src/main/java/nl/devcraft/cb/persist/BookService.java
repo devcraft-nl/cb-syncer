@@ -17,17 +17,15 @@ public class BookService {
 
   @Transactional
   public void update(ParsedBook book) {
-    var bookEntity = Book.findByIsbn(book.isbn());
-    Book updatedBookEntity;
-    if( bookEntity == null ) {
-      updatedBookEntity = mapToBookEntity(book);
-    } else {
-      updatedBookEntity = updateBookEntity(bookEntity, book);
-    }
+    Book updatedBookEntity = Book.findByIsbn(book.isbn())
+        .map(bookEntity -> updateBookEntity(bookEntity, book))
+        .orElseGet(() -> mapToBookEntity(book));
     updatedBookEntity.persist();
     updatedBookEntity.authors.forEach(a -> a.persist());
     //save isbn number to update table
-    mapToBookUpdateEntity(book).persist();
+    var bookUpdate = BookUpdate.findByIsbn(book.isbn())
+        .orElseGet(() -> mapToBookUpdateEntity(book));
+    bookUpdate.persist();
   }
 
   private Book updateBookEntity(Book book, ParsedBook parsedBook) {

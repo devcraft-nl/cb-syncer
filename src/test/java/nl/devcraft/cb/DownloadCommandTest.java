@@ -16,18 +16,20 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @WithFTPServer
 class DownloadCommandTest {
 
+  public static final String DOWNLOAD_RESOURCE_MAP = "src/test/resources/download";
+
   @Test
   public void it_should_download_onyx_files_from_ftp(QuarkusMainLauncher launcher) {
-    LaunchResult result = launcher.launch("download", "-i=/ftp/test", "-o=src/test/resources/download");
+    LaunchResult result = launcher.launch("download", "-i=/ftp/test", "-o=" + DOWNLOAD_RESOURCE_MAP);
 
     assertThat(result.exitCode()).isEqualTo(0);
-    var expectedDownloadedFile = Path.of("src/test/resources/download", "Onix3sample_refnames.xml").toFile();
+    var expectedDownloadedFile = Path.of(DOWNLOAD_RESOURCE_MAP, "Onix3sample_refnames.xml").toFile();
     assertThat(expectedDownloadedFile.exists()).isTrue();
   }
 
   @AfterEach
   void cleanup() throws IOException {
-    Files.walk(Path.of("src/test/resources/download"), 1)
+    Files.walk(Path.of(DOWNLOAD_RESOURCE_MAP), 1)
         .filter(Files::isRegularFile)
         .forEach(file -> file.toFile().delete());
   }

@@ -39,20 +39,9 @@ public class FtpServerResourceManager
         .withEnv("USERS", DEFAULT_USER + "|" + DEFAULT_PASSWORD)
         .withEnv("MIN_PORT", String.valueOf(PASSIVE_MODE_PORT))
         .withEnv("MAX_PORT", String.valueOf(PASSIVE_MODE_PORT))
-    //
-    // container = new FixedHostPortGenericContainer(
-    //     new ImageFromDockerfile()
-    //         .withDockerfileFromBuilder(builder ->
-    //             builder
-    //                 .from("delfer/alpine-ftp-server:latest")
-    //                 .build()
-    //         )
-    // )
-    //     .withExposedPorts(DEFAULT_PORT)
-    //     .withEnv("USERS", DEFAULT_USER + "|" + DEFAULT_PASSWORD)// + "|/ftp/test|10000")
         .withStartupCheckStrategy(new MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(5)))
         .withCopyFileToContainer(
-            MountableFile.forClasspathResource("/onix_refnames/Onix3sample_refnames.xml"),
+            MountableFile.forClasspathResource("/ONIX_3.0_sample/Onix3sample_refnames.xml"),
             "/ftp/test/Onix3sample_refnames.xml"
         )
     ;

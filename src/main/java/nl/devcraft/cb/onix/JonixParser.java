@@ -1,6 +1,8 @@
 package nl.devcraft.cb.onix;
 
 import com.tectonica.jonix.Jonix;
+import com.tectonica.jonix.JonixRecord;
+import com.tectonica.jonix.JonixSource;
 import com.tectonica.jonix.common.OnixVersion;
 import com.tectonica.jonix.common.codelist.ContributorRoles;
 import com.tectonica.jonix.common.codelist.PriceTypes;
@@ -9,11 +11,12 @@ import com.tectonica.jonix.common.codelist.ResourceContentTypes;
 import com.tectonica.jonix.common.codelist.ResourceForms;
 import com.tectonica.jonix.common.codelist.TextTypes;
 import com.tectonica.jonix.common.codelist.TitleTypes;
+import com.tectonica.jonix.onix3.Product;
 import com.tectonica.jonix.unify.base.BasePrice;
-import com.tectonica.jonix.unify.base.BaseProduct;
 import com.tectonica.jonix.util.JonixUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -36,56 +39,69 @@ public class JonixParser {
         })
         .onSourceEnd(src -> {
           System.out.printf("<< Processed %d products from %s %n", src.productCount(), src.sourceName());
+          renameToProcessed(src);
         })
         .stream() // iterate over the products contained in all ONIX sources
-        .map(record -> {
-          BaseProduct product = Jonix.toBaseProduct(record);
-          String ref = product.info.recordReference;
-          String isbn13 = product.info.findProductId(ProductIdentifierTypes.ISBN_13);
-          String title = product.titles.findTitleText(TitleTypes.Distinctive_title_book);
-          List<BasePrice> prices = product.supplyDetails.findPrices(requestedPrices);
-          List<String> authors = product.contributors.getDisplayNames(ContributorRoles.By_author);
-          var shortDescription = product.texts.findText(TextTypes.Short_description_annotation);
-          var description = product.texts.findText(TextTypes.Description);
-
-          var product3 = Jonix.toProduct3(record);
-
-          // var bookImage = product3.collateralDetail().supportingResources();
-
-          var bookImage = product3.collateralDetail().supportingResources()
-              .first()
-              .filter(sr -> sr.resourceContentType().value == ResourceContentTypes.Front_cover)
-              .map(sr -> sr.resourceVersions().first())
-              .filter(Optional::isPresent)
-              .filter(rv -> rv.get().resourceForm().value == ResourceForms.Downloadable_file)
-              .map(rv -> rv.get().resourceLinks().firstValueOrNull())
-              .orElse(null);
-
-          var productAvailability =
-              product3.productSupplys()
-                  .firstOrEmpty()
-                  .supplyDetails()
-                  .firstOrEmpty()
-                  .productAvailability()
-                  .value()
-                  .map(Enum::name)
-                  .map(String::toLowerCase)
-                  .orElse("unknown");
-
-          return ParsedBookBuilder.builder()
-              .bookImage(bookImage)
-              .authors(authors)
-              .ref(ref)
-              .isbn(Long.valueOf(isbn13))
-              .title(title)
-              .description(description != null ? description.text : null)
-              .shortDescription(shortDescription != null ? shortDescription.text : null)
-              .productAvailability(productAvailability)
-              .priceNoTax(getPrice(prices, PriceTypes.RRP_excluding_tax))
-              .priceTax(getPrice(prices, PriceTypes.RRP_including_tax))
-              .build();
-        })
+        .map(this::mapToParsedBook)
         .toList();
+  }
+
+  private static void renameToProcessed(JonixSource src) {
+    var fileProcessed = Path.of(src.sourceName() + ".processed");
+    if (!Path.of(src.sourceName()).toFile().renameTo(fileProcessed.toFile())) {
+      throw new RuntimeException("Could not rename " + src.sourceName() + " to " + fileProcessed);
+    }
+  }
+
+  private ParsedBook mapToParsedBook(JonixRecord record) {
+    var product = Jonix.toBaseProduct(record);
+    var ref = product.info.recordReference;
+    var isbn13 = product.info.findProductId(ProductIdentifierTypes.ISBN_13);
+    var title = product.titles.findTitleText(TitleTypes.Distinctive_title_book);
+    List<BasePrice> prices = product.supplyDetails.findPrices(requestedPrices);
+    List<String> authors = product.contributors.getDisplayNames(ContributorRoles.By_author);
+    var shortDescription = product.texts.findText(TextTypes.Short_description_annotation);
+    var description = product.texts.findText(TextTypes.Description);
+
+    var product3 = Jonix.toProduct3(record);
+    var bookImage = getBookImage(product3);
+    var productAvailability = getProductAvailability(product3);
+
+    return ParsedBookBuilder.builder()
+        .bookImage(bookImage)
+        .authors(authors)
+        .ref(ref)
+        .isbn(Long.valueOf(isbn13))
+        .title(title)
+        .description(description != null ? description.text : null)
+        .shortDescription(shortDescription != null ? shortDescription.text : null)
+        .productAvailability(productAvailability)
+        .priceNoTax(getPrice(prices, PriceTypes.RRP_excluding_tax))
+        .priceTax(getPrice(prices, PriceTypes.RRP_including_tax))
+        .build();
+  }
+
+  private static String getProductAvailability(Product product3) {
+    return product3.productSupplys()
+        .firstOrEmpty()
+        .supplyDetails()
+        .firstOrEmpty()
+        .productAvailability()
+        .value()
+        .map(Enum::name)
+        .map(String::toLowerCase)
+        .orElse("unknown");
+  }
+
+  private static String getBookImage(Product product3) {
+    return product3.collateralDetail().supportingResources()
+        .first()
+        .filter(sr -> sr.resourceContentType().value == ResourceContentTypes.Front_cover)
+        .map(sr -> sr.resourceVersions().first())
+        .filter(Optional::isPresent)
+        .filter(rv -> rv.get().resourceForm().value == ResourceForms.Downloadable_file)
+        .map(rv -> rv.get().resourceLinks().firstValueOrNull())
+        .orElse(null);
   }
 
   private static Double getPrice(List<BasePrice> prices, PriceTypes priceType) {

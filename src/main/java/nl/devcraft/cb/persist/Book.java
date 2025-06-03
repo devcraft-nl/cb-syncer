@@ -8,6 +8,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Table(name = "cb_books")
@@ -42,8 +43,8 @@ public class Book extends PanacheEntity {
   @OneToMany(mappedBy = "id", fetch = FetchType.EAGER)
   public List<Author> authors = new ArrayList<>();
 
-  public static Book findByIsbn(Long isbn) {
-    return find("isbn", isbn).firstResult();
+  public static Optional<Book> findByIsbn(Long isbn) {
+    return find("isbn", isbn).firstResultOptional();
   }
 
 }
