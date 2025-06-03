@@ -7,6 +7,7 @@ import com.tectonica.jonix.common.codelist.PriceTypes;
 import com.tectonica.jonix.common.codelist.ProductIdentifierTypes;
 import com.tectonica.jonix.common.codelist.ResourceContentTypes;
 import com.tectonica.jonix.common.codelist.ResourceForms;
+import com.tectonica.jonix.common.codelist.TextTypes;
 import com.tectonica.jonix.common.codelist.TitleTypes;
 import com.tectonica.jonix.unify.base.BasePrice;
 import com.tectonica.jonix.unify.base.BaseProduct;
@@ -36,7 +37,6 @@ public class JonixParser {
           System.out.printf("<< Processed %d products from %s %n", src.productCount(), src.sourceName());
         })
         .stream() // iterate over the products contained in all ONIX sources
-        // .map(Jonix::toBaseProduct) // transforms ONIX-2/3 product into a unified version-agnostic object
         .map(record -> {
           BaseProduct product = Jonix.toBaseProduct(record);
           String ref = product.info.recordReference;
@@ -44,9 +44,11 @@ public class JonixParser {
           String title = product.titles.findTitleText(TitleTypes.Distinctive_title_book);
           List<BasePrice> prices = product.supplyDetails.findPrices(requestedPrices);
           List<String> authors = product.contributors.getDisplayNames(ContributorRoles.By_author);
-
+          var shortDescription = product.texts.findText(TextTypes.Short_description_annotation);
+          var description = product.texts.findText(TextTypes.Description);
 
           var product3 = Jonix.toProduct3(record);
+
           var bookImage = product3.collateralDetail().supportingResources()
               .filter(sr -> sr.resourceContentType().value == ResourceContentTypes.Front_cover)
               .firstOrEmpty()
@@ -71,9 +73,10 @@ public class JonixParser {
               .bookImage(bookImage)
               .authors(authors)
               .ref(ref)
-              .isbn(isbn13)
+              .isbn(Long.valueOf(isbn13))
               .title(title)
-              .shortDescription(null)
+              .description(description != null ? description.text : null)
+              .shortDescription(shortDescription != null ? shortDescription.text : null)
               .productAvailability(productAvailability)
               .priceNoTax(getPrice(prices, PriceTypes.RRP_excluding_tax))
               .priceTax(getPrice(prices, PriceTypes.RRP_including_tax))
@@ -85,6 +88,7 @@ public class JonixParser {
   private static Double getPrice(List<BasePrice> prices, PriceTypes priceType) {
     return prices.stream()
         .filter(p -> p.priceType == priceType)
+        .filter(p -> p.currencyCode.getCode().equals("EUR"))
         .map(p -> p.priceAmount)
         .findFirst()
         .orElse(null);

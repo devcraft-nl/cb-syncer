@@ -1,31 +1,33 @@
 package nl.devcraft.cb.persist;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "cb_books")
-public class Book extends PanacheEntityBase {
+public class Book extends PanacheEntity {
 
-  @Id
-  public String isbn;
+  @Column(unique = true)
+  public Long isbn;
 
   public String title;
 
-  @OneToMany
-  public List<Author> authors;
-
   public String coverImage;
 
+  @Column(length = 2000)
   public String description;
 
-  public double priceNoTax;
+  public String shortDescription;
 
-  public double priceTax;
+  public Double priceNoTax;
+
+  public Double priceTax;
 
   public String currency;
 
@@ -37,7 +39,10 @@ public class Book extends PanacheEntityBase {
 
   public String ref;
 
-  public static Book findByIsbn(String isbn) {
+  @OneToMany(mappedBy = "id", fetch = FetchType.EAGER)
+  public List<Author> authors = new ArrayList<>();
+
+  public static Book findByIsbn(Long isbn) {
     return find("isbn", isbn).firstResult();
   }
 

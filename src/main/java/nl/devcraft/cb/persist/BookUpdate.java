@@ -10,6 +10,6 @@ import jakarta.persistence.Table;
 @Table(name = "cb_books_update")
 public class BookUpdate extends PanacheEntity {
 
-  public String isbn;
+  public Long isbn;
 
 }

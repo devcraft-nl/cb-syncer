@@ -17,7 +17,7 @@ public class DatabaseServerResourceManager
   public static final String DEFAULT_DATABASE_USER = "test";
   public static final String DEFAULT_DATABASE_PASSWORD = "test";
   private Optional<String> containerNetworkId;
-  private MySQLContainer container;
+  private MySQLContainer<?> container;
 
   @Override
   public void setIntegrationTestContext(DevServicesContext context) {
@@ -28,14 +28,9 @@ public class DatabaseServerResourceManager
   public Map<String, String> start() {
     // start a container making sure to call withNetworkMode() with the value of containerNetworkId
     // if present
-    container =
-        new MySQLContainer("mysql:8.0.28");
+    container = new MySQLContainer<>("mysql:8.0.28");
     // container
-    container
-        // .withInitScript("db/test-data-mssql.sql")
-        .withStartupCheckStrategy(new MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(5)));
-    // .withLogConsumer(outputFrame -> {});
-
+    container.withStartupCheckStrategy(new MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(5)));
     // apply the network to the container
     containerNetworkId.ifPresent(container::withNetworkMode);
 

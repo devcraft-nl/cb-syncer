@@ -6,7 +6,7 @@ ftp:
 quarkus:
   hibernate-orm:
     database:
-      generation: drop-and-create
+      generation: create
   datasource:
     db-kind: mysql
     username: test

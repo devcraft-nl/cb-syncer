@@ -1,0 +1,1 @@
+SELECT * FROM cb_books;

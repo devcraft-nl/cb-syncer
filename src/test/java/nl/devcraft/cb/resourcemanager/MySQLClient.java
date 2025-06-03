@@ -3,6 +3,7 @@ package nl.devcraft.cb.resourcemanager;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -34,6 +35,11 @@ public class MySQLClient {
       throw new RuntimeException(e);
     }
   }
+
+  public Connection connection() throws SQLException {
+    return mysqlDataSource.getConnection();
+  }
+
 
   public ResultSet select(String sql) {
     try (var conn = mysqlDataSource.getConnection()) {

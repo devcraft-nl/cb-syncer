@@ -33,6 +33,7 @@ class JonixParserTest {
             ParsedBook::title,
             ParsedBook::authors,
             ParsedBook::shortDescription,
+            ParsedBook::description,
             ParsedBook::priceTax,
             ParsedBook::priceNoTax,
             ParsedBook::bookImage,
@@ -40,11 +41,12 @@ class JonixParserTest {
             ParsedBook::ref
             )
         .containsOnly(new Tuple(
-            "9780007232833",
+            9780007232833L,
             "Roseanna",
             List.of("Maj Sjöwall", "Per Wahlöö"),
+            "<p><strong>Perennial relaunches the first novel in the classic Martin Beck detective series from the 1960s</strong> – the novels that have inspired all crime fiction written ever since.</p>",
+            "<p>Widely recognised as the among the greatest crime fiction ever written, this is the first of a series of stories that pioneered the police procedural genre. The series was translated into 35 languages, sold over 10 million copies around the world, and inspired writers from Henning Mankell to Jonathan Franzen.</p><p>Written in 1965, <em>Roseanna</em> is the work of Maj Sjöwall and Per Wahlöö – a husband and wife team from Sweden, and this volume has a new introduction to help bring their work to a new audience. The novel follows the fortunes of the detective Martin Beck, whose enigmatic and taciturn character has inspired countless other policemen in crime fiction.</p><p><em>Roseanna</em> begins on a July afternoon: the body of a young woman is dredged from a canal near Sweden’s beautiful Lake Vättern. Three months later, all that Police Inspector Martin Beck knows is that her name is Roseanna, that she came from Lincoln, Nebraska, and that she could have been strangled by any one of eighty-five people.</p><p>With its authentically rendered settings and vividly realized characters, and its command over the intricately woven details of police detection, <em>Roseanna</em> is a masterpiece of suspense and sadness.</p>",
             null,
-            7.99,
             8.99,
             "http://www.harpercollins.co.uk/covers/9780007232833.jpg",
             "in_stock",
@@ -74,11 +76,11 @@ class JonixParserTest {
             ParsedBook::ref
         )
         .containsOnly(new Tuple(
-            "9780007232833",
+            9780007232834L,
             null,
             List.of(),
             null,
-            8.99,
+            null,
             9.99,
             null,
             "in_stock",
