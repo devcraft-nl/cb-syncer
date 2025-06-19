@@ -3,15 +3,10 @@ package nl.devcraft.cb;
 import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainLauncher;
 import io.quarkus.test.junit.main.QuarkusMainTest;
-import jakarta.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Path;
-import nl.devcraft.cb.onix.ParsedBook;
-import nl.devcraft.cb.onix.ParsedBookBuilder;
-import nl.devcraft.cb.persist.BookService;
 import nl.devcraft.cb.resourcemanager.WithDBServer;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;

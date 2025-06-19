@@ -1,6 +1,7 @@
 package nl.devcraft.cb;
 
 import java.nio.file.Paths;
+import java.util.Objects;
 import nl.devcraft.cb.onix.JonixParser;
 import nl.devcraft.cb.persist.BookService;
 import picocli.CommandLine;
@@ -27,6 +28,8 @@ class UpdateCommand implements Runnable {
   public void run() {
     System.out.println(dir);
     jonixParser.read(Paths.get(dir).toFile())
+        .stream()
+        .filter(Objects::nonNull)
         .forEach(book -> {
           persister.update(book);
           System.out.println("Updated book with isbn: " + book.isbn());
