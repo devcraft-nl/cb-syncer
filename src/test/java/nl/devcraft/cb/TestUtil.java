@@ -19,6 +19,13 @@ public class TestUtil {
     }
   }
 
+  public static void removeFilesFromDir(Path dir) throws IOException {
+    try (Stream<Path> walk = Files.walk(dir)) {
+      walk.filter(Files::isRegularFile)
+          .forEach(path -> path.toFile().delete());
+    }
+  }
+
   private static File fileRenamedBack(Path path) {
     var renamedFile = path.toFile().getPath().replace(POST_PROCESSED, "");
     return new File(renamedFile);
