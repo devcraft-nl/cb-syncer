@@ -27,8 +27,8 @@ public class ParseCommandTest {
     LaunchResult result = launcher.launch("parse", "-d=" + ONIX_REFNAMES);
     assertThat(result.exitCode()).isEqualTo(0);
     assertThat(result.getOutput()).contains("Stored book with title: Roseanna");
-    assertThat(Path.of(ONIX_REFNAMES, "Onix3sample_refnames.xml")).doesNotExist();
-    assertThat(Path.of(ONIX_REFNAMES, "Onix3sample_refnames.xml.processed")).exists();
+    assertThat(Path.of(ONIX_REFNAMES, "Onix3sample_refnames.onx")).doesNotExist();
+    assertThat(Path.of(ONIX_REFNAMES, "Onix3sample_refnames.onx.processed")).exists();
   }
 
 }

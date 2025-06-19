@@ -3,6 +3,8 @@ package nl.devcraft.cb.onix;
 import com.tectonica.jonix.Jonix;
 import com.tectonica.jonix.JonixRecord;
 import com.tectonica.jonix.JonixSource;
+import com.tectonica.jonix.common.ListOfOnixComposite;
+import com.tectonica.jonix.common.OnixElement;
 import com.tectonica.jonix.common.OnixVersion;
 import com.tectonica.jonix.common.codelist.ContributorRoles;
 import com.tectonica.jonix.common.codelist.PriceTypes;
@@ -12,11 +14,13 @@ import com.tectonica.jonix.common.codelist.ResourceForms;
 import com.tectonica.jonix.common.codelist.TextTypes;
 import com.tectonica.jonix.common.codelist.TitleTypes;
 import com.tectonica.jonix.onix3.Product;
+import com.tectonica.jonix.onix3.ProductSupply;
 import com.tectonica.jonix.unify.base.BasePrice;
 import com.tectonica.jonix.util.JonixUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -25,12 +29,17 @@ import java.util.Set;
 public class JonixParser {
 
   Set<PriceTypes> requestedPrices = JonixUtil.setOf(
-      PriceTypes.RRP_including_tax,
+      PriceTypes.FRP_including_tax,
       PriceTypes.RRP_excluding_tax
   );
 
   public List<ParsedBook> read(File xmlFile) {
-    return Jonix.source(xmlFile, "*.xml", false)
+    List<File> orderedFiles = Arrays.stream(xmlFile.listFiles())
+        .filter(file -> file.getName().endsWith(".onx") && !file.isDirectory())
+        .sorted()
+        .toList();
+
+    return Jonix.source(orderedFiles)
         .onSourceStart(src -> {
           // safeguard: we skip non-ONIX-3 files
           if (src.onixVersion() != OnixVersion.ONIX3) {
@@ -57,6 +66,10 @@ public class JonixParser {
     var product = Jonix.toBaseProduct(record);
     var ref = product.info.recordReference;
     var isbn13 = product.info.findProductId(ProductIdentifierTypes.ISBN_13);
+    if (isbn13 == null) {
+      return null;
+    }
+
     var title = product.titles.findTitleText(TitleTypes.Distinctive_title_book);
     List<BasePrice> prices = product.supplyDetails.findPrices(requestedPrices);
     List<String> authors = product.contributors.getDisplayNames(ContributorRoles.By_author);
@@ -77,18 +90,20 @@ public class JonixParser {
         .shortDescription(shortDescription != null ? shortDescription.text : null)
         .productAvailability(productAvailability)
         .priceNoTax(getPrice(prices, PriceTypes.RRP_excluding_tax))
-        .priceTax(getPrice(prices, PriceTypes.RRP_including_tax))
+        .priceTax(getPrice(prices, PriceTypes.FRP_including_tax))
         .build();
   }
 
   private static String getProductAvailability(Product product3) {
     return product3.productSupplys()
-        .firstOrEmpty()
-        .supplyDetails()
-        .firstOrEmpty()
-        .productAvailability()
-        .value()
-        .map(Enum::name)
+        .first()
+        .map(ProductSupply::supplyDetails)
+        .map(ListOfOnixComposite::first)
+        .filter(Optional::isPresent)
+        .map(s -> s.get().productAvailability())
+        .map(OnixElement::value)
+        .filter(Optional::isPresent)
+        .map(v -> v.get().name())
         .map(String::toLowerCase)
         .orElse("unknown");
   }
