@@ -23,7 +23,7 @@ class DownloadCommandTest {
     LaunchResult result = launcher.launch("download", "-i=/ftp/test", "-o=" + DOWNLOAD_RESOURCE_MAP);
 
     assertThat(result.exitCode()).isEqualTo(0);
-    var expectedDownloadedFile = Path.of(DOWNLOAD_RESOURCE_MAP, "Onix3sample_refnames.xml").toFile();
+    var expectedDownloadedFile = Path.of(DOWNLOAD_RESOURCE_MAP, "Onix3sample_refnames.zip").toFile();
     assertThat(expectedDownloadedFile.exists()).isTrue();
   }
 

@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -41,8 +40,9 @@ public class FtpDownloader {
       FTPClient ftpClient = ftpConnector.connect(host, user, password, Integer.parseInt(port));
       goToDir(ftpClient, remotePath);
       FTPFile[] files = ftpClient.listFiles();
+      Stream.of(files).forEach(f -> System.out.printf("file found: %s", f.getName()));
       Stream.of(files)
-          .filter(onyxfFilePredicate())
+          .filter(onixFilePredicate())
           .forEach(file -> downloadFile(file, localPath, ftpClient));
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -53,8 +53,14 @@ public class FtpDownloader {
     try {
       Path localFilePath = Path.of(localPath, file.getName());
       File fileObj = localFilePath.toFile();
-      if (!fileObj.exists()) {
-        fileObj.createNewFile();
+      // file already exists
+      if (fileObj.exists()) {
+        System.out.printf("could not create file: %s", file.getName());
+        return;
+      }
+
+      if (!fileObj.createNewFile()) {
+        System.out.printf("could not create file: %s", file.getName());
       }
 
       try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(fileObj))) {
@@ -66,8 +72,8 @@ public class FtpDownloader {
     }
   }
 
-  private static Predicate<FTPFile> onyxfFilePredicate() {
-    return file -> !file.isDirectory() && file.getName().endsWith(".xml");
+  private static Predicate<FTPFile> onixFilePredicate() {
+    return file -> !file.isDirectory() && file.getName().endsWith(".zip") || file.getName().endsWith(".abi");
   }
 
   private static void goToDir(FTPClient ftpClient, String remotePath) throws IOException {

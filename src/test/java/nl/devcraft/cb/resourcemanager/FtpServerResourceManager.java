@@ -41,8 +41,8 @@ public class FtpServerResourceManager
         .withEnv("MAX_PORT", String.valueOf(PASSIVE_MODE_PORT))
         .withStartupCheckStrategy(new MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(5)))
         .withCopyFileToContainer(
-            MountableFile.forClasspathResource("/ONIX_3.0_sample/Onix3sample_refnames.xml"),
-            "/ftp/test/Onix3sample_refnames.xml"
+            MountableFile.forClasspathResource("/zip/Onix3sample_refnames.zip"),
+            "/ftp/test/Onix3sample_refnames.zip"
         )
     ;
 
