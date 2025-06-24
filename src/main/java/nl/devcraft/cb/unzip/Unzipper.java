@@ -19,7 +19,7 @@ public class Unzipper {
 
     Objects.requireNonNull(sourceDir);
     Stream.of(sourceDirFile.listFiles())
-        .filter(file -> !file.isDirectory() && !file.getName().endsWith(".zip"))
+        .filter(file -> !file.isDirectory() && file.getName().endsWith(".zip"))
         .forEach(file -> {
           try {
             unzipFile(file, outputDirFile);
