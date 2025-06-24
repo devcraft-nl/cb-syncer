@@ -3,6 +3,7 @@ package nl.devcraft.cb;
 import java.nio.file.Paths;
 import java.util.Objects;
 import nl.devcraft.cb.onix.JonixParser;
+import nl.devcraft.cb.onix.ParsedBook;
 import nl.devcraft.cb.persist.BookService;
 import picocli.CommandLine;
 
@@ -30,9 +31,15 @@ class UpdateCommand implements Runnable {
     jonixParser.read(Paths.get(dir).toFile())
         .stream()
         .filter(Objects::nonNull)
-        .forEach(book -> {
-          persister.update(book);
-          System.out.println("Updated book with isbn: " + book.isbn());
-        });
+        .forEach(this::storeBook);
+  }
+
+  private void storeBook(ParsedBook book) {
+    try {
+      persister.update(book);
+      System.out.println("Updated book with isbn: " + book.isbn());
+    } catch(Exception e) {
+      System.out.printf("Could not save book with isbn: %s; %s%n", book.isbn(), e.getMessage());
+    }
   }
 }

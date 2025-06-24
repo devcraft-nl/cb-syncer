@@ -28,6 +28,7 @@ public class Book extends PanacheEntity {
   @Column(length = 2000)
   public String description;
 
+  @Column(length = 2000)
   public String shortDescription;
 
   public Double priceNoTax;
