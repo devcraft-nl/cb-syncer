@@ -3,6 +3,7 @@ ftp:
   password: test
   host: localhost
   port: 21
+  debug: false
 quarkus:
   hibernate-orm:
     database:

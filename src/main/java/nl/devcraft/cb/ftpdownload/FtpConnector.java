@@ -12,15 +12,18 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class FtpConnector {
 
-  public FTPClient connect(String host, String user, String password, int port) throws IOException {
+  public FTPClient connect(FtpConnection ftpConnection) throws IOException {
     FTPClient ftpClient = new FTPClient();
     ftpClient.setControlEncoding("UTF-8");
     ftpClient.setAutodetectUTF8(true);
-    ftpClient
-        .addProtocolCommandListener(
-            new PrintCommandListener(new PrintWriter(System.out, false, UTF_8)));
 
-    ftpClient.connect(host, port);
+    if (ftpConnection.debug()) {
+      ftpClient
+          .addProtocolCommandListener(
+              new PrintCommandListener(new PrintWriter(System.out, false, UTF_8)));
+    }
+
+    ftpClient.connect(ftpConnection.host(), ftpConnection.port());
     FTPClientConfig config = new FTPClientConfig();
     config.setUnparseableEntries(true);
     ftpClient.configure(config);
@@ -31,9 +34,8 @@ public class FtpConnector {
       throw new RuntimeException("Operation failed. Server reply code:" + replyCode);
     }
 
-    // login to ftp server with username and
-    // password.
-    boolean success = ftpClient.login(user, password);
+    // login to ftp server with username and password
+    boolean success = ftpClient.login(ftpConnection.user(), ftpConnection.password());
     if (!success) {
       ftpClient.disconnect();
       throw new RuntimeException("Could not login to server!");
@@ -41,7 +43,6 @@ public class FtpConnector {
     // assign file type according to the server.
     ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
     ftpClient.enterLocalPassiveMode();
-    // ftpClient.enterRemotePassiveMode();
 
     return ftpClient;
   }

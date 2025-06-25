@@ -30,6 +30,9 @@ public class FtpDownloader {
   @ConfigProperty(name = "ftp.port")
   String port;
 
+  @ConfigProperty(name = "ftp.debug", defaultValue = "false")
+  boolean debug;
+
 
   FtpDownloader() {
     ftpConnector = new FtpConnector();
@@ -37,7 +40,14 @@ public class FtpDownloader {
 
   public void download(String remotePath, String localPath) {
     try {
-      FTPClient ftpClient = ftpConnector.connect(host, user, password, Integer.parseInt(port));
+      var connection = FtpConnectionBuilder.builder()
+          .user(user)
+          .password(password)
+          .host(host)
+          .port(Integer.parseInt(port))
+          .debug(debug)
+          .build();
+      FTPClient ftpClient = ftpConnector.connect(connection);
       goToDir(ftpClient, remotePath);
       FTPFile[] files = ftpClient.listFiles();
       Stream.of(files).forEach(f -> System.out.printf("file found: %s", f.getName()));
