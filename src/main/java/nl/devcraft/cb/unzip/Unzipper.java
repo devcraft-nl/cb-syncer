@@ -17,45 +17,52 @@ public class Unzipper {
     File sourceDirFile = new File(sourceDir);
     File outputDirFile = new File(outputDir);
 
-    Objects.requireNonNull(sourceDir);
-    Stream.of(sourceDirFile.listFiles())
+    Stream.of(Objects.requireNonNull(sourceDirFile.listFiles()))
         .filter(file -> !file.isDirectory() && file.getName().endsWith(".zip"))
         .forEach(file -> {
           try {
             unzipFile(file, outputDirFile);
           } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("Error unzipping file: " + file.getAbsolutePath());
           }
         });
   }
 
   private void unzipFile(File file, File outputDir) throws IOException {
-    byte[] buffer = new byte[1024];
-    ZipInputStream zis = new ZipInputStream(new FileInputStream(file));
-    ZipEntry zipEntry = zis.getNextEntry();
-    while (zipEntry != null) {
-      File newFile = newFile(outputDir, zipEntry);
-      if (zipEntry.isDirectory()) {
-        if (!newFile.isDirectory() && !newFile.mkdirs()) {
-          throw new IOException("Failed to create directory " + newFile);
+    try (ZipInputStream zis = new ZipInputStream(new FileInputStream(file))) {
+      ZipEntry zipEntry = zis.getNextEntry();
+      while (zipEntry != null) {
+        if (checkIfFileWasAlreadyProcessed(outputDir, zipEntry)) {
+          System.out.println("Zipped contents already processed: " + file.getAbsolutePath());
+          return;
         }
-      } else {
-        // write file content
-        FileOutputStream fos = new FileOutputStream(newFile);
-        int len;
-        while ((len = zis.read(buffer)) > 0) {
-          fos.write(buffer, 0, len);
-        }
-        fos.close();
+        writeUnzippedFile(zis, zipEntry, outputDir);
+        zipEntry = zis.getNextEntry();
       }
-      zipEntry = zis.getNextEntry();
+      zis.closeEntry();
     }
-
-    zis.closeEntry();
-    zis.close();
   }
 
-  private static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
+  private static boolean checkIfFileWasAlreadyProcessed(File outputDir, ZipEntry zipEntry) {
+    File fileToWrite = new File(outputDir, zipEntry.getName());
+    File fileToWriteAsProcessed = new File(outputDir, zipEntry.getName() + ".processed");
+    return fileToWrite.exists() || fileToWriteAsProcessed.exists();
+  }
+
+  private void writeUnzippedFile(ZipInputStream zis, ZipEntry zipEntry, File outputDir) throws IOException {
+    File newFile = newFile(outputDir, zipEntry);
+    try (FileOutputStream fos = new FileOutputStream(newFile)) {
+      byte[] buffer = new byte[1024];
+      int len;
+      while ((len = zis.read(buffer)) > 0) {
+        fos.write(buffer, 0, len);
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
     File destFile = new File(destinationDir, zipEntry.getName());
 
     String destDirPath = destinationDir.getCanonicalPath();
