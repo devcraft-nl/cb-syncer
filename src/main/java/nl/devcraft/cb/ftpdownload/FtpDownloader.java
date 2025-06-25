@@ -50,7 +50,7 @@ public class FtpDownloader {
       FTPClient ftpClient = ftpConnector.connect(connection);
       goToDir(ftpClient, remotePath);
       FTPFile[] files = ftpClient.listFiles();
-      Stream.of(files).forEach(f -> System.out.printf("file found: %s", f.getName()));
+      Stream.of(files).forEach(f -> System.out.printf("file found: %s \n", f.getName()));
       Stream.of(files)
           .filter(onixFilePredicate())
           .forEach(file -> downloadFile(file, localPath, ftpClient));
@@ -65,17 +65,17 @@ public class FtpDownloader {
       File fileObj = localFilePath.toFile();
       // file already exists
       if (fileObj.exists()) {
-        System.out.printf("could not create file: %s", file.getName());
+        System.out.printf("file already exists: %s \n", file.getName());
         return;
       }
 
       if (!fileObj.createNewFile()) {
-        System.out.printf("could not create file: %s", file.getName());
+        System.out.printf("could not create file: %s \n", file.getName());
       }
 
       try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(fileObj))) {
         boolean succesfullyRetrieved = ftpClient.retrieveFile(file.getName(), outputStream);
-        System.out.printf("%s file is downloaded : %s", file.getName(), succesfullyRetrieved);
+        System.out.printf("%s file is downloaded : %s \n", file.getName(), succesfullyRetrieved);
       }
     } catch (IOException e) {
       throw new RuntimeException(e);

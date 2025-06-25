@@ -23,24 +23,20 @@ class DownloadCommandTest {
 
   @Test
   public void it_should_download_onix_files_from_ftp(QuarkusMainLauncher launcher) {
-    LaunchResult result = launcher.launch("download", "-i=/ftp/test", "-o=" + DOWNLOAD_RESOURCE_MAP, "-u=" + UNZIP_RESOURCE_MAP);
+    LaunchResult result =
+        launcher.launch("download", "-i=/ftp/test", "-o=" + DOWNLOAD_RESOURCE_MAP, "-u=" + UNZIP_RESOURCE_MAP);
 
     assertThat(result.exitCode()).isEqualTo(0);
     var expectedDownloadedFile = Path.of(DOWNLOAD_RESOURCE_MAP, "Onix3sample_refnames.zip").toFile();
     assertThat(expectedDownloadedFile.exists()).isTrue();
     var expectedUnzippedFile = Path.of(UNZIP_RESOURCE_MAP, "Onix3sample_refnames.onx").toFile();
     assertThat(expectedUnzippedFile.exists()).isTrue();
-
   }
 
   @AfterEach
   void cleanup() throws IOException {
-    Files.walk(Path.of(DOWNLOAD_RESOURCE_MAP), 1)
-        .filter(Files::isRegularFile)
-        .forEach(file -> file.toFile().delete());
-    Files.walk(Path.of(UNZIP_RESOURCE_MAP), 1)
-        .filter(Files::isRegularFile)
-        .forEach(file -> file.toFile().delete());
+    TestUtil.removeFilesFromDir(Path.of(DOWNLOAD_RESOURCE_MAP));
+    TestUtil.removeFilesFromDir(Path.of(UNZIP_RESOURCE_MAP));
   }
 
 }

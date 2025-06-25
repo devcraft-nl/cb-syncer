@@ -22,6 +22,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -124,6 +125,7 @@ public class JonixParser {
         .filter(p -> p.priceType == priceType)
         .filter(p -> p.currencyCode.getCode().equals("EUR"))
         .map(p -> p.priceAmount)
+        .filter(Objects::nonNull)
         .findFirst()
         .orElse(null);
   }
