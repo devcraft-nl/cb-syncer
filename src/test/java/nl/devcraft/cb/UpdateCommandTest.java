@@ -27,8 +27,8 @@ public class UpdateCommandTest {
     LaunchResult result = launcher.launch("update", "-d=" + ONIX_REFNAMES_BLOCKUPDATE);
     assertThat(result.exitCode()).isEqualTo(0);
     assertThat(result.getOutput()).contains("Updated book with isbn: 9780007232833");
-    assertThat(Path.of(ONIX_REFNAMES_BLOCKUPDATE, "Onix3sample_refnames_blockupdate.xml")).doesNotExist();
-    assertThat(Path.of(ONIX_REFNAMES_BLOCKUPDATE, "Onix3sample_refnames_blockupdate.xml.processed")).exists();
+    assertThat(Path.of(ONIX_REFNAMES_BLOCKUPDATE, "Onix3sample_refnames_blockupdate.onx")).doesNotExist();
+    assertThat(Path.of(ONIX_REFNAMES_BLOCKUPDATE, "Onix3sample_refnames_blockupdate.onx.processed")).exists();
   }
 
 }
